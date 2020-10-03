@@ -1,0 +1,13 @@
+#!/bin/bash
+
+echo -e "\033[0;32mCode Security Checks (bandit):\033[0m"
+echo
+# B322 error is specific to Python 2, so we ignore it for now
+# See: https://github.com/PyCQA/bandit/issues/402
+./venv/bin/bandit --quiet --skip=B322 -r citylight
+echo "----------"
+
+echo -e "\033[0;32mDependencies Security Checks (safety):\033[0m"
+echo
+./venv/bin/safety check --full-report
+echo "----------"

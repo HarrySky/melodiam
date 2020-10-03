@@ -1,0 +1,18 @@
+site_name: Melodiam
+site_description: Share the music with people all over the web.
+
+theme:
+    name: 'material'
+
+repo_name: HarrySky/melodiam
+repo_url: https://github.com/HarrySky/melodiam
+edit_uri: ""
+
+nav:
+    - Introduction: 'index.md'
+    - Release Notes: 'release-notes.md'
+
+markdown_extensions:
+  - markdown.extensions.codehilite:
+      guess_lang: false
+  - mkautodoc

@@ -1,0 +1,33 @@
+FROM postgres:11-alpine
+LABEL maintainer="Igor Nehoroshev <mail@neigor.me>"
+
+ENV POSTGRES_USER melodiam
+ENV POSTGRES_DB melodiam
+ARG POSTGRES_PASSWORD
+
+COPY melodiam/db/init.sql /init.sql
+
+SHELL ["/bin/bash", "-c"]
+### SETUP POSTGRESQL DATABASE
+RUN export PGPASSWORD=${POSTGRES_PASSWORD} \
+    && source /docker-entrypoint.sh \
+    && docker_setup_env && docker_create_db_directories \
+    && echo '#!/bin/bash' > /setup \
+    && echo 'source /docker-entrypoint.sh && docker_setup_env' >> /setup \
+    && chmod +x /setup \
+    && cp /setup /stop \
+    && echo 'docker_init_database_dir && pg_setup_hba_conf && docker_temp_server_start && docker_setup_db' >> /setup \
+    && echo 'PGUSER=postgres && pg_ctl -D "$PGDATA" -m smart -w stop' >> /stop \
+  && su-exec postgres /setup \
+### INITIALIZE melodiam DATABASE
+    && psql -d melodiam -U melodiam -f /init.sql \
+    && su-exec postgres /stop \
+    && unset PGPASSWORD \
+### MOVE ALL DATA TO FOLDER THAT WILL PERSIST
+    && mkdir /postgres \
+    && cp -r /var/lib/postgresql/data/* /postgres \
+### CLEANUP
+    && rm -f /setup /stop \
+    && rm -rf /var/lib/postgresql/data/*
+
+ENV PGDATA /postgres

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sudo docker build --build-arg POSTGRES_PASSWORD=${1:-melodiam} \
+    -f tests/Dockerfile-db -t melodiam-db:latest .

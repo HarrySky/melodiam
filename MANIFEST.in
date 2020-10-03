@@ -1,0 +1,4 @@
+global-exclude __pycache__
+global-exclude *.py[co]
+recursive-include melodiam *.py *.sql
+include README.md LICENSE melodiam/py.typed

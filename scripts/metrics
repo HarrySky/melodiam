@@ -1,0 +1,16 @@
+#!/bin/bash
+
+echo -e "\033[0;32mCyclomatic Complexity Check (radon):\033[0m"
+echo
+./venv/bin/radon cc melodiam --show-complexity --total-average
+echo "----------"
+
+echo -e "\033[0;32mMaintainability Index Check (radon):\033[0m"
+echo
+./venv/bin/radon mi melodiam --show
+echo "----------"
+
+echo -e "\033[0;32mCompute Raw Metrics (radon):\033[0m"
+echo
+./venv/bin/radon raw melodiam --summary
+echo "----------"

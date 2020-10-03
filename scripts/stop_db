@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sudo docker rm -f melodiam-db
+sudo docker volume prune --force
