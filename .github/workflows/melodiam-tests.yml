@@ -17,6 +17,8 @@ jobs:
     services:
       melodiam-db:
         image: postgres:11-alpine
+        ports:
+          - 5432:5432
         env:
           POSTGRES_USER: melodiam
           POSTGRES_DB: melodiam
@@ -39,7 +41,7 @@ jobs:
         ./scripts/install
     - name: Initialize database
       run: |
-        apt update && apt install postgresql-client
+        apt-get update && apt-get install -y postgresql-client
         export PGPASSWORD=melodiam
         psql -U melodiam -h melodiam-db -d melodiam -f melodiam/db/init.sql
     - name: Checking linting and style
