@@ -18,6 +18,7 @@ from melodiam import conf
 from melodiam.auth.models import Token
 from melodiam.resources import database
 from melodiam.util.loghelper import init_logger
+from melodiam.util.webhelper import envelope
 
 _logger = init_logger()
 _credentials: Credentials = None  # type: ignore[assignment]
@@ -75,28 +76,18 @@ async def login_redirect(
 ) -> Union[RedirectResponse, JSONResponse]:
     _check_initialized()
     if request.session.get("state") != state:
-        # TODO: REFACTOR. Move creation of this envelope into some function
-        return JSONResponse(
-            {
-                "ok": False,
-                "description": "State in session and request don't match!",
-                "result": None,
-            },
-            status.HTTP_409_CONFLICT,
+        return envelope(
+            description="State in session and request don't match!",
+            status=status.HTTP_409_CONFLICT,
         )
 
     try:
         token: TekoreToken = await _credentials.request_user_token(code)
     except (ClientError, ServerError):
         _logger.exception("Error during request for user token:")
-        # TODO: REFACTOR. Move creation of this envelope into some function
-        return JSONResponse(
-            {
-                "ok": False,
-                "description": "Cannot obtain token with provided code!",
-                "result": None,
-            },
-            status.HTTP_401_UNAUTHORIZED,
+        return envelope(
+            description="Cannot obtain token with provided code!",
+            status=status.HTTP_401_UNAUTHORIZED,
         )
 
     with _api.token_as(token) as api:
