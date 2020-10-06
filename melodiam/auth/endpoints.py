@@ -3,7 +3,6 @@ from typing import List, Optional, Union
 from fastapi import Query, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from httpx import AsyncClient
-from orm.exceptions import NoMatch  # type: ignore[import]
 from starlette import status
 from tekore import (  # type: ignore[import]
     AsyncSender,
@@ -19,13 +18,14 @@ from melodiam import conf
 from melodiam.auth.models import Token
 from melodiam.resources import database
 from melodiam.util.loghelper import init_logger
+from melodiam.util.webhelper import envelope
 
 _logger = init_logger()
 _credentials: Credentials = None  # type: ignore[assignment]
 _api: Spotify = None  # type: ignore[assignment]
 
 
-def _check_initialized() -> None:
+def _check_initialized() -> None:  # pragma: no cover
     if _credentials is None or _api is None:
         raise UnboundLocalError("API not ready, run startup() method!")
 
@@ -75,53 +75,29 @@ async def login_redirect(
     state: str = Query(..., title="State for this login attempt"),  # noqa: B008
 ) -> Union[RedirectResponse, JSONResponse]:
     _check_initialized()
-    if request.session.get("state") != state:
-        # TODO: REFACTOR. Move creation of this envelope into some function
-        return JSONResponse(
-            {
-                "ok": False,
-                "description": "State in session and request don't match!",
-                "result": None,
-            },
-            status.HTTP_409_CONFLICT,
+    session_state = request.session.pop("state", None)
+    next_url = request.session.pop("next_url", "/")
+    if session_state != state:
+        return envelope(
+            description="State in session and request don't match!",
+            status=status.HTTP_409_CONFLICT,
         )
 
     try:
         token: TekoreToken = await _credentials.request_user_token(code)
     except (ClientError, ServerError):
         _logger.exception("Error during request for user token:")
-        # TODO: REFACTOR. Move creation of this envelope into some function
-        return JSONResponse(
-            {
-                "ok": False,
-                "description": "Cannot obtain token with provided code!",
-                "result": None,
-            },
-            status.HTTP_401_UNAUTHORIZED,
+        return envelope(
+            description="Cannot obtain token with provided code!",
+            status=status.HTTP_401_UNAUTHORIZED,
         )
 
     with _api.token_as(token) as api:
+        # TODO: REFACTOR. Wrap this in try-catch block (request can fail)
         user: PrivateUser = await api.current_user()
-        request.session["state"] = state
-        request.session["user"] = user.id
 
-    try:
-        token_row: Token = await Token.objects.get(
-            user_id=user.id, scope=str(token.scope)
-        )
-        await token_row.update(
-            access=token.access_token,
-            refresh=token.refresh_token,
-            expires_at=token.expires_at,
-        )
-    except NoMatch:
-        await Token.objects.create(
-            user_id=user.id,
-            scope=str(token.scope),
-            access=token.access_token,
-            refresh=token.refresh_token,
-            expires_at=token.expires_at,
-        )
-
-    next_url = request.session.get("next_url", "/")
+    # TODO: REFACTOR. Wrap this in try-catch block (INSERT can fail)
+    await Token.upsert(user.id, token)
+    request.session["scope"] = str(token.scope)
+    request.session["user"] = user.id
     return RedirectResponse(next_url)
