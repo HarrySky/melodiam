@@ -27,12 +27,10 @@ _api: Spotify = None  # type: ignore[assignment]
 
 def _check_initialized() -> None:
     if _credentials is None or _api is None:
-        raise UnboundLocalError("Run on_startup() to initialize!")
+        raise UnboundLocalError("API not ready, run startup() method!")
 
 
-async def on_startup() -> None:
-    await database.connect()
-
+async def startup() -> None:
     global _credentials, _api
     _credentials = Credentials(
         conf.CLIENT_ID,
@@ -45,6 +43,13 @@ async def on_startup() -> None:
         sender=AsyncSender(AsyncClient(http2=True, timeout=conf.SPOTIFY_API_TIMEOUT)),
         asynchronous=True,
     )
+    await database.connect()
+    _logger.info("melodiam-auth started")
+
+
+async def shutdown() -> None:
+    await database.disconnect()
+    _logger.info("melodiam-auth exited")
 
 
 async def login(
