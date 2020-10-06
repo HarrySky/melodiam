@@ -25,7 +25,7 @@ _credentials: Credentials = None  # type: ignore[assignment]
 _api: Spotify = None  # type: ignore[assignment]
 
 
-def _check_initialized() -> None:
+def _check_initialized() -> None:  # pragma: no cover
     if _credentials is None or _api is None:
         raise UnboundLocalError("API not ready, run startup() method!")
 
@@ -75,7 +75,9 @@ async def login_redirect(
     state: str = Query(..., title="State for this login attempt"),  # noqa: B008
 ) -> Union[RedirectResponse, JSONResponse]:
     _check_initialized()
-    if request.session.get("state") != state:
+    session_state = request.session.pop("state", None)
+    next_url = request.session.pop("next_url", "/")
+    if session_state != state:
         return envelope(
             description="State in session and request don't match!",
             status=status.HTTP_409_CONFLICT,
@@ -91,11 +93,11 @@ async def login_redirect(
         )
 
     with _api.token_as(token) as api:
+        # TODO: REFACTOR. Wrap this in try-catch block (request can fail)
         user: PrivateUser = await api.current_user()
-        request.session["state"] = state
-        request.session["user"] = user.id
 
     # TODO: REFACTOR. Wrap this in try-catch block (INSERT can fail)
     await Token.upsert(user.id, token)
-    next_url = request.session.get("next_url", "/")
+    request.session["scope"] = str(token.scope)
+    request.session["user"] = user.id
     return RedirectResponse(next_url)
