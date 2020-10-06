@@ -1,16 +1,21 @@
 #!/bin/bash
 
+export PREFIX=""
+if [ -d 'venv' ] ; then
+    export PREFIX="./venv/bin/"
+fi
+
 echo -e "\033[0;32mCyclomatic Complexity Check (radon):\033[0m"
 echo
-./venv/bin/radon cc melodiam --show-complexity --total-average
+${PREFIX}radon cc melodiam --show-complexity --total-average
 echo "----------"
 
 echo -e "\033[0;32mMaintainability Index Check (radon):\033[0m"
 echo
-./venv/bin/radon mi melodiam --show
+${PREFIX}radon mi melodiam --show
 echo "----------"
 
 echo -e "\033[0;32mCompute Raw Metrics (radon):\033[0m"
 echo
-./venv/bin/radon raw melodiam --summary
+${PREFIX}radon raw melodiam --summary
 echo "----------"

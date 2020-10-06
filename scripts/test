@@ -5,7 +5,7 @@ if [ -d 'venv' ] ; then
     export PREFIX="./venv/bin/"
 fi
 
-set -x
+set -e
 
 if [ -z "$GITHUB_ACTIONS" ]; then
     export MELODIAM_CONFIG="${PWD}/tests/test.env"
