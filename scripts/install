@@ -10,7 +10,7 @@ fi
 
 "$PIP" install --no-cache-dir -e .
 # Testing
-"$PIP" install --no-cache-dir pytest pytest-cov pytest-asyncio
+"$PIP" install --no-cache-dir pytest pytest-cov pytest-asyncio hypothesis httpx
 # Static analysis (without changing files)
 "$PIP" install --no-cache-dir mypy flake8 flake8-bugbear flake8-pie pep8-naming
 # Linting (with changing files)
