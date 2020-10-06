@@ -33,3 +33,7 @@ DATABASE_URL: str = _config.get(
     str,
     default="postgresql:///melodiam?user=melodiam&host=localhost&port=5432",
 )
+
+# Host and port to listen on for melodiam-auth uvicorn
+AUTH_LISTEN_HOST: str = _config.get("AUTH_LISTEN_HOST", str, default="127.0.0.1")
+AUTH_LISTEN_PORT: int = _config.get("AUTH_LISTEN_PORT", int, default=7455)

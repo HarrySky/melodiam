@@ -1,9 +1,16 @@
 def main() -> None:
     import uvicorn  # type: ignore[import]
 
+    from melodiam import conf
     from melodiam.auth import api
 
-    uvicorn.run(api, host="0.0.0.0", port=7455, loop="uvloop", proxy_headers=True)
+    uvicorn.run(
+        api,
+        host=conf.AUTH_LISTEN_HOST,
+        port=conf.AUTH_LISTEN_PORT,
+        loop="uvloop",
+        proxy_headers=True,
+    )
 
 
 if __name__ == "__main__":
