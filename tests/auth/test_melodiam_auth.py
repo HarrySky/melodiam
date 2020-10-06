@@ -63,6 +63,7 @@ async def current_user_mock():
     user=emails(),
     scopes=permutations(list(spotify_scope.every)),
 )  # type: ignore
+@settings(deadline=800)  # type: ignore
 @pytest.mark.asyncio
 async def test_full_auth_sequence(
     state: str, next_url: str, user: str, scopes: List[str], auth_client: AsyncClient
