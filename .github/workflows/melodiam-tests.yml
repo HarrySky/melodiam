@@ -43,7 +43,7 @@ jobs:
       run: |
         apt-get update && apt-get install -y postgresql-client
         export PGPASSWORD=melodiam
-        psql -U melodiam -h melodiam-db -d melodiam -f melodiam/db/init.sql
+        psql -U melodiam -h localhost -d melodiam -f melodiam/db/init.sql
     - name: Checking linting and style
       run: |
         ./scripts/check
