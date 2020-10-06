@@ -3,7 +3,6 @@ from typing import List, Optional, Union
 from fastapi import Query, Request
 from fastapi.responses import JSONResponse, RedirectResponse
 from httpx import AsyncClient
-from orm.exceptions import NoMatch  # type: ignore[import]
 from starlette import status
 from tekore import (  # type: ignore[import]
     AsyncSender,
@@ -105,23 +104,7 @@ async def login_redirect(
         request.session["state"] = state
         request.session["user"] = user.id
 
-    try:
-        token_row: Token = await Token.objects.get(
-            user_id=user.id, scope=str(token.scope)
-        )
-        await token_row.update(
-            access=token.access_token,
-            refresh=token.refresh_token,
-            expires_at=token.expires_at,
-        )
-    except NoMatch:
-        await Token.objects.create(
-            user_id=user.id,
-            scope=str(token.scope),
-            access=token.access_token,
-            refresh=token.refresh_token,
-            expires_at=token.expires_at,
-        )
-
+    # TODO: REFACTOR. Wrap this in try-catch block (INSERT can fail)
+    await Token.upsert(user.id, token)
     next_url = request.session.get("next_url", "/")
     return RedirectResponse(next_url)
