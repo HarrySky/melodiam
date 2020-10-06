@@ -12,6 +12,7 @@ if not path.exists(_config_file) or not access(_config_file, R_OK):
 
 _config = Config(env_file=_config_file)
 DEBUG: bool = _config.get("DEBUG", bool, default=True)
+API_PREFIX: str = _config.get("API_PREFIX", str, default="/api")
 # Secret key for session encryption
 SESSION_SECRET: str = _config.get("SESSION_SECRET", str, default="change-me")
 # Paths to use for auth API
