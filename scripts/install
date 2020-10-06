@@ -1,19 +1,23 @@
 #!/bin/bash
 
-rm -rf venv
-python3.7 -m virtualenv venv
+if [ -z "$GITHUB_ACTIONS" ]; then
+    rm -rf venv
+    python3.7 -m virtualenv venv
+    PIP="./venv/bin/pip"
+else
+    PIP=pip
+fi
 
-./venv/bin/pip install --no-cache-dir -e .
-
+"$PIP" install --no-cache-dir -e .
 # Testing
-./venv/bin/pip install --no-cache-dir pytest pytest-cov pytest-asyncio
+"$PIP" install --no-cache-dir pytest pytest-cov pytest-asyncio
 # Static analysis (without changing files)
-./venv/bin/pip install --no-cache-dir mypy flake8 flake8-bugbear flake8-pie pep8-naming
+"$PIP" install --no-cache-dir mypy flake8 flake8-bugbear flake8-pie pep8-naming
 # Linting (with changing files)
-./venv/bin/pip install --no-cache-dir black autoflake isort
+"$PIP" install --no-cache-dir black autoflake isort
 # Security checks and other metrics
-./venv/bin/pip install --no-cache-dir bandit radon safety
+"$PIP" install --no-cache-dir bandit radon safety
 # Documentation
-./venv/bin/pip install --no-cache-dir mkdocs mkdocs-material mkautodoc
+"$PIP" install --no-cache-dir mkdocs mkdocs-material mkautodoc
 # Packaging
-./venv/bin/pip install --no-cache-dir twine wheel
+"$PIP" install --no-cache-dir twine wheel

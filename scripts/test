@@ -1,6 +1,18 @@
 #!/bin/bash
 
-./scripts/run_db 127.0.0.1 5432
-export MELODIAM_CONFIG="${PWD}/tests/test.env"
-PYTHONPATH=. ./venv/bin/pytest
-./scripts/stop_db
+export PREFIX=""
+if [ -d 'venv' ] ; then
+    export PREFIX="./venv/bin/"
+fi
+
+set -x
+
+if [ -z "$GITHUB_ACTIONS" ]; then
+    export MELODIAM_CONFIG="${PWD}/tests/test.env"
+    ./scripts/run_db 127.0.0.1 5432
+    PYTHONPATH=. ${PREFIX}pytest
+    ./scripts/stop_db
+else
+    export MELODIAM_CONFIG="${PWD}/tests/ga-test.env"
+    PYTHONPATH=. ${PREFIX}pytest
+fi

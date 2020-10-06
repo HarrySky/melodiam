@@ -1,0 +1,28 @@
+#!/bin/bash
+
+export PREFIX=""
+if [ -d 'venv' ] ; then
+    export PREFIX="./venv/bin/"
+fi
+
+set -x
+
+echo -e "\033[0;32mChecking Sorting Of Imports (isort):\033[0m"
+echo
+${PREFIX}isort --check --diff --project=melodiam melodiam tests
+echo "----------"
+
+echo -e "\033[0;32mChecking Linting (black):\033[0m"
+echo
+${PREFIX}black --check --diff melodiam tests
+echo "----------"
+
+echo -e "\033[0;32mRunning Code Style Check (flake8):\033[0m"
+echo
+${PREFIX}flake8 melodiam tests
+echo "----------"
+
+echo -e "\033[0;32mStatic Types Check (mypy):\033[0m"
+echo
+${PREFIX}mypy melodiam tests
+echo "----------"

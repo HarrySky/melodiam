@@ -1,26 +1,23 @@
 #!/bin/bash
 
+export PREFIX=""
+if [ -d 'venv' ] ; then
+    export PREFIX="./venv/bin/"
+fi
+
+set -x
+
 echo -e "\033[0;32mRemoving Unused Imports (autoflake):\033[0m"
 echo
-./venv/bin/autoflake --in-place --recursive melodiam tests setup.py
+${PREFIX}autoflake --in-place --recursive melodiam tests setup.py
 echo "----------"
 
 echo -e "\033[0;32mSorting Imports (isort):\033[0m"
 echo
-./venv/bin/isort --project=melodiam melodiam tests setup.py
+${PREFIX}isort --project=melodiam melodiam tests setup.py
 echo "----------"
 
 echo -e "\033[0;32mLinting (black):\033[0m"
 echo
-./venv/bin/black --target-version=py37 melodiam tests setup.py
-echo "----------"
-
-echo -e "\033[0;32mStatic Types Check After Linting (mypy):\033[0m"
-echo
-./venv/bin/mypy melodiam
-echo "----------"
-
-echo -e "\033[0;32mRunning Code Style Check (flake8):\033[0m"
-echo
-./venv/bin/flake8 melodiam
+${PREFIX}black --target-version=py37 melodiam tests setup.py
 echo "----------"

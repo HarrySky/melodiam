@@ -1,3 +1,10 @@
 #!/bin/bash
 
-./venv/bin/mkdocs build --no-directory-urls
+export PREFIX=""
+if [ -d 'venv' ] ; then
+    export PREFIX="./venv/bin/"
+fi
+
+set -x
+
+${PREFIX}mkdocs build --no-directory-urls
