@@ -12,6 +12,7 @@ if not path.exists(_config_file) or not access(_config_file, R_OK):
 
 _config = Config(env_file=_config_file)
 DEBUG: bool = _config.get("DEBUG", bool, default=True)
+TESTING: bool = _config.get("TESTING", bool, default=False)
 API_PREFIX: str = _config.get("API_PREFIX", str, default="/api")
 # Secret key for session encryption
 SESSION_SECRET: str = _config.get("SESSION_SECRET", str, default="change-me")
@@ -32,3 +33,7 @@ DATABASE_URL: str = _config.get(
     str,
     default="postgresql:///melodiam?user=melodiam&host=localhost&port=5432",
 )
+
+# Host and port to listen on for melodiam-auth uvicorn
+AUTH_LISTEN_HOST: str = _config.get("AUTH_LISTEN_HOST", str, default="127.0.0.1")
+AUTH_LISTEN_PORT: int = _config.get("AUTH_LISTEN_PORT", int, default=7455)

@@ -1,0 +1,55 @@
+name: Melodiam Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8]
+
+    services:
+      melodiam-db:
+        image: postgres:11-alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: melodiam
+          POSTGRES_DB: melodiam
+          POSTGRES_PASSWORD: melodiam
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        ./scripts/install
+    - name: Initialize database
+      run: |
+        apt-get update && apt-get install -y postgresql-client
+        export PGPASSWORD=melodiam
+        psql -U melodiam -h localhost -d melodiam -f melodiam/db/init.sql
+    - name: Checking linting and style
+      run: |
+        ./scripts/check
+    - name: Running tests
+      run: |
+        ./scripts/test
+    - name: Running security checks
+      run: |
+        ./scripts/security
