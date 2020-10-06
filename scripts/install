@@ -6,7 +6,8 @@ python3.7 -m virtualenv venv
 ./venv/bin/pip install --no-cache-dir -e .
 
 # Testing
-./venv/bin/pip install --no-cache-dir pytest pytest-cov pytest-asyncio
+./venv/bin/pip install --no-cache-dir pytest pytest-cov pytest-asyncio \
+    hypothesis httpx
 # Static analysis (without changing files)
 ./venv/bin/pip install --no-cache-dir mypy flake8 flake8-bugbear flake8-pie pep8-naming
 # Linting (with changing files)
