@@ -1,8 +1,16 @@
-from os import environ
+import sys
+from os import R_OK, access, environ, path
 
 from starlette.config import Config
 
-_config = Config(env_file=environ.get("MELODIAM_CONFIG", None))
+_config_file = environ.get("MELODIAM_CONFIG", "tests/test.env")
+if "--config" in sys.argv:
+    _config_file = sys.argv[sys.argv.index("--config") + 1]
+
+if not path.exists(_config_file) or not access(_config_file, R_OK):
+    raise IOError(f"Config file ({_config_file}) does not exist or not readable")
+
+_config = Config(env_file=_config_file)
 DEBUG: bool = _config.get("DEBUG", bool, default=True)
 # Secret key for session encryption
 SESSION_SECRET: str = _config.get("SESSION_SECRET", str, default="change-me")
