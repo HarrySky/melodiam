@@ -1,11 +1,12 @@
-from asyncio import get_event_loop_policy
+from asyncio import AbstractEventLoop, get_event_loop_policy
 from logging import getLogger
+from typing import Any, AsyncGenerator, Generator
 
 import pytest
 from httpx import AsyncClient
 
 
-def no_problems_logged(capfd) -> bool:
+def no_problems_logged(capfd: Any) -> bool:
     stderr = capfd
     if not isinstance(capfd, str):
         stderr = capfd.readouterr().err
@@ -14,7 +15,7 @@ def no_problems_logged(capfd) -> bool:
 
 
 @pytest.fixture(autouse=True)
-def clear_logger():
+def clear_logger() -> None:
     """Clear handlers to avoid errors when using logger in tests."""
     logger = getLogger("melodiam")
     handlers = getattr(logger, "handlers", [])
@@ -23,7 +24,7 @@ def clear_logger():
 
 
 @pytest.fixture(scope="session")
-async def auth_client():
+async def auth_client() -> AsyncGenerator[AsyncClient, None]:
     from melodiam.auth import api, endpoints
 
     await endpoints.startup()
@@ -38,7 +39,7 @@ async def auth_client():
 
 
 @pytest.yield_fixture(scope="session")
-def event_loop():
+def event_loop() -> Generator[AbstractEventLoop, None, None]:
     """
     Create an instance of the default event loop for each test case to avoid errors.
     """
