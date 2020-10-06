@@ -1,4 +1,3 @@
-from logging import getLogger
 from typing import List, Optional, Union
 
 from fastapi import Query, Request
@@ -19,8 +18,9 @@ from tekore.model import PrivateUser  # type: ignore[import]
 from melodiam import conf
 from melodiam.auth.models import Token
 from melodiam.resources import database
+from melodiam.util.loghelper import init_logger
 
-_logger = getLogger("melodiam")
+_logger = init_logger()
 _credentials: Credentials = None  # type: ignore[assignment]
 _api: Spotify = None  # type: ignore[assignment]
 
